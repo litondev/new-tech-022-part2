@@ -18,13 +18,13 @@ class ProductController extends BaseController
     public function index(){
         $data = $this->productModel;
 
-		if(!empty($this->request->getGet('search'))){
-			$search = input_sanitize($this->request->getGet('search'));
+		if(!empty($this->request->getVar('search'))){
+			$search = input_sanitize($this->request->getVar('search'));
 			$data = $data->orWhere('title',$search);
 		}
 
 		return $this->respond([
-        	"product" => $dataArticel
+        	"product" => $data
         		->orderBy('id' ?? $this->request->getVar("column"),$this->request->getVar("order") ?? 'desc')
         		->paginate($this->request->getVar("per_page") ?? 10),
             "pager" => $this->productModel->pager,    
