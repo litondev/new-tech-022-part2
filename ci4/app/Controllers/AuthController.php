@@ -72,6 +72,8 @@ class AuthController extends BaseController
 
     public function signup(){
         try{
+            $this->db->transStart();
+
             $this->validation->setRules([
                 "name" => "required",
                 "email" => "required|valid_email|is_unique[users.email]",            
@@ -81,6 +83,8 @@ class AuthController extends BaseController
 		    $this->validation->withRequest($this->request)->run();
 
 		    if(count($this->validation->getErrors())){
+                $this->db->transRollback();
+
     			return $this->respond([
 				    "message" => $this->validation->getErrors()[array_keys($this->validation->getErrors())[0]]
 			    ],422);
@@ -96,10 +100,14 @@ class AuthController extends BaseController
                 "password" => password_hash($password,PASSWORD_DEFAULT)
             ]);
 
+            $this->db->transComplete();
+
             return $this->respond([
                 "message" => "Berhasil"
             ]);
         }catch(\Exception $e){
+            $this->db->transRollback();
+
             log_message('error', $e->getMessage());
 
             return $this->respond([
@@ -121,10 +129,116 @@ class AuthController extends BaseController
     }
 
     public function forgotPassword(){
+        try{
+            $this->db->transStart();
 
+            $this->validation->setRules([
+                "email" => "required|valid_email",            
+		    ]);
+
+		    $this->validation->withRequest($this->request)->run();
+
+		    if(count($this->validation->getErrors())){
+                $this->db->transRollback();
+
+    			return $this->respond([
+				    "message" => $this->validation->getErrors()[array_keys($this->validation->getErrors())[0]]
+			    ],422);
+		    }
+
+            $user = $this->userModel->where("email",$this->request->getVar("email"))->first();
+
+            if(!$user){
+                $this->db->transRollback();
+
+                return $this->respond([
+                    "message" => "Email tidak ditemukan"
+                ],422);
+            }
+
+            $this->userModel->update($user["id"],[
+                "remember_token" => "12345"
+            ]);
+
+            $this->db->transComplete();
+
+            return $this->respond([
+                "message" => "Berhasil"
+            ]);
+        }catch(\Exception $e){
+            $this->db->transRollback();
+
+            log_message('error', $e->getMessage());
+
+            return $this->respond([
+                "message" => "Terjadi Kesalahan"
+            ],500);
+        }
     }
 
     public function resetPassword(){
+        try{
+            $this->db->transStart();
 
+            $this->validation->setRules([
+                "email" => "required|valid_email",            
+                "token" => "required",
+                "password" => "required|min_length[8]",
+                "password_confirmation" => "required|min_length[8]"
+		    ]);
+
+		    $this->validation->withRequest($this->request)->run();
+
+		    if(count($this->validation->getErrors())){
+                $this->db->transRollback();
+
+    			return $this->respond([
+				    "message" => $this->validation->getErrors()[array_keys($this->validation->getErrors())[0]]
+			    ],422);
+		    }
+            
+            $email = $this->request->getVar("email");
+            $token = $this->request->getVar("token");
+            $password = $this->request->getVar("password");
+            $password_confirmation = $this->request->getVar("password_confirmation");
+
+            if($password != $password_confirmation){
+                $this->db->transRollback();
+
+                return $this->respond([
+                    "message" => "Password konfirmasi harus sama"
+                ],422);
+            }
+
+            $user = $this->userModel->where("email",$email)
+                ->where("remember_token",$token)
+                ->first();
+
+            if(!$user){
+                $this->db->transRollback();
+
+                return $this->respond([
+                    "message" => "Email tidak ditemukan"
+                ],422);
+            }
+    
+            $this->userModel->update($user["id"],[
+                "password" => password_hash($password,PASSWORD_DEFAULT)
+            ]);
+
+            $this->db->transComplete();
+
+            return $this->respond([
+                "message" => "Berhasil"
+            ]);
+        }catch(\Exception $e){
+            $this->db->transRollback();
+
+            log_message('error', $e->getMessage());
+
+            return $this->respond([
+                "message" => "Terjadi Kesalahan"
+            ],500);
+        }
     }
 }

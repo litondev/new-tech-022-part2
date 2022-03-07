@@ -43,11 +43,26 @@ $routes->group("api",["filter" => "cors"],function ($routes) {
 
     $routes->post("signup", "AuthController::signup");
     $routes->post("signin", "AuthController::signin");    
-    // reset-password and forgot-password
+    $routes->post("forgot-password","AuthController::forgotPassword");
+    $routes->post("reset-password","AuthController::resetPassword");
 
     $routes->group("",["filter" => 'authFilter'],function($routes){
         $routes->get("me","AuthController::me");
-        $routes->post("logout","AuthController::logout");        
+        $routes->post("logout","AuthController::logout");            
+    });
+
+    $routes->group("/profil",["filter" => "authFilter"],function($routes){
+        $routes->post("data","ProfilController::data");
+        $routes->post("password","ProfilController::password");
+        $routes->post("photo","ProfilController::photo");
+    });
+
+    $routes->group("/product",["filter" => "authFilter"],function($routes){
+        $routes->get("/","ProductController::index");
+        $routes->post("/","ProductController::store");
+        $routes->get("/(:num)","ProductController::show");
+        $routes->delete("/(:num)","ProductController::destroy");
+        $routes->put("/(:num)","ProductController::update");
     });
 });
 
