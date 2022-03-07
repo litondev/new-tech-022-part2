@@ -22,7 +22,7 @@ class AllSeeder extends Seeder
 
         $productModel = new ProductModel();
         
-        for($i=0;$i<10;$i++){
+        for($i=0;$i<50;$i++){
             $productModel->insert([
                 "title" => "product-".$i,
             ]);

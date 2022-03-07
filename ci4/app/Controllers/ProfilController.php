@@ -147,18 +147,18 @@ class ProfilController extends BaseController
 
   		    $image->withFile($photo->getTempName())  		   
             	->fit(500, 500, 'center')
-        	    ->save('./assets/images/users/'.$name);
+        	    ->save('./images/users/'.$name);
 
   			$payload = [
       			"photo" => $name
   			];
   		
-            $user = $this->userModel->where("id",$this->requeset->jwt->sub)->first();
+            $user = $this->userModel->where("id",$this->request->jwt->sub)->first();
 
   			$this->userModel->update($user["id"],$payload);
 
       	    if($user['photo'] != 'default.png'){						 
-  			    $filePath = "./assets/images/users/".$user['photo'];
+  			    $filePath = "./images/users/".$user['photo'];
 
 				if(file_exists($filePath)){
     				unlink($filePath);

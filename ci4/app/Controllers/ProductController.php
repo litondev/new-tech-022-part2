@@ -19,7 +19,7 @@ class ProductController extends BaseController
         $data = $this->productModel;
 
 		if(!empty($this->request->getVar('search'))){
-			$search = input_sanitize($this->request->getVar('search'));
+			$search = \Config\Database::connect()->escapeString(trim(htmlspecialchars($this->request->getVar('search'))));
 			$data = $data->orWhere('title',$search);
 		}
 
@@ -27,7 +27,7 @@ class ProductController extends BaseController
         	"product" => $data
         		->orderBy('id' ?? $this->request->getVar("column"),$this->request->getVar("order") ?? 'desc')
         		->paginate($this->request->getVar("per_page") ?? 10),
-            "pager" => $this->productModel->pager,    
+            "pager" => $this->productModel->pager->getDetails(),    
         ]);
     }
 
@@ -47,8 +47,8 @@ class ProductController extends BaseController
             
             $this->validation->setRules([            
                 "name" => "required",
-                "stock" => "required|decimal|greater_than_equal_to[0.00]|regex_match/^-?[0-9]+(?:.[0-9]{1,2})?$/",
-                "decimal" => "required|decimal|greater_than_equal_to[0.00]|regex_match/^-?[0-9]+(?:.[0-9]{1,2})?$/"			   ,
+                "stock" => "required|decimal|greater_than_equal_to[0.00]|regex_match[/^-?[0-9]+(?:.[0-9]{1,2})?$/]",
+                "price" => "required|decimal|greater_than_equal_to[0.00]|regex_match[/^-?[0-9]+(?:.[0-9]{1,2})?$/]"			   ,
 		    ]);
 
 		    $this->validation->withRequest($this->request)->run();
@@ -64,7 +64,7 @@ class ProductController extends BaseController
             $this->productModel->insert([
                 "name" => $this->request->getVar("name"),
                 "stock" => $this->request->getVar("stock"),
-                "decimal" => $this->request->getVar("decimal"),
+                "price" => $this->request->getVar("price"),
                 "description" => $this->request->getVar("description")
             ]);
 
@@ -98,8 +98,8 @@ class ProductController extends BaseController
 
             $this->validation->setRules([            
                 "name" => "required",
-                "stock" => "required|decimal|greater_than_equal_to[0.00]|regex_match/^-?[0-9]+(?:.[0-9]{1,2})?$/",
-                "decimal" => "required|decimal|greater_than_equal_to[0.00]|regex_match/^-?[0-9]+(?:.[0-9]{1,2})?$/"			   ,
+                "stock" => "required|decimal|greater_than_equal_to[0.00]|regex_match[/^-?[0-9]+(?:.[0-9]{1,2})?$/]",
+                "price" => "required|decimal|greater_than_equal_to[0.00]|regex_match[/^-?[0-9]+(?:.[0-9]{1,2})?$/]",
 		    ]);
 
 		    $this->validation->withRequest($this->request)->run();
@@ -125,7 +125,7 @@ class ProductController extends BaseController
             $this->productModel->update($product["id"],[
                 "name" => $this->request->getVar("name"),
                 "stock" => $this->request->getVar("stock"),
-                "decimal" => $this->request->getVar("decimal"),
+                "price" => $this->request->getVar("price"),
                 "description" => $this->request->getVar("description")
             ]);
 
@@ -145,7 +145,7 @@ class ProductController extends BaseController
         }
     }
 
-    public function destory($id){
+    public function destroy($id){
         try{
             $this->db->transStart();
 

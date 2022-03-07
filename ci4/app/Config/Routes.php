@@ -51,18 +51,18 @@ $routes->group("api",["filter" => "cors"],function ($routes) {
         $routes->post("logout","AuthController::logout");            
     });
 
-    $routes->group("/profil",["filter" => "authFilter"],function($routes){
+    $routes->group("profil",["filter" => "authFilter"],function($routes){
         $routes->post("data","ProfilController::data");
         $routes->post("password","ProfilController::password");
         $routes->post("photo","ProfilController::photo");
     });
 
-    $routes->group("/product",["filter" => "authFilter"],function($routes){
+    $routes->group("product",["filter" => "authFilter"],function($routes){
+        $routes->get("(:num)","ProductController::show/$1");
+        $routes->delete("(:num)","ProductController::destroy/$1");
+        $routes->put("(:num)","ProductController::update/$1");
         $routes->get("/","ProductController::index");
         $routes->post("/","ProductController::store");
-        $routes->get("/(:num)","ProductController::show");
-        $routes->delete("/(:num)","ProductController::destroy");
-        $routes->put("/(:num)","ProductController::update");
     });
 });
 
