@@ -46,6 +46,10 @@ const ResetPassword = () => {
         })            
     }
 
+    if(localStorage.getItem("user-token")){
+        return <Navigate to="/profil"/>
+    }
+    
     return (
         <div className="flex justify-center items-center h-screen">
             <div className="container-small">

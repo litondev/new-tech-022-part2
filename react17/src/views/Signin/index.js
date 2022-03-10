@@ -24,22 +24,30 @@ const Signin = () => {
     })
 
     const onSubmit = (values,{setSubmitting}) => {            
-        window.$axios.post("/auth/signin",values)
+        window.$axios.post("/signin",values)
         .then(res => {
-            localStorage.setItem('user-token',res.data.access_token);            
-            // return window.$axios.get("/me");           
-        })
-        .then(res => {
-            setSubmitting(false)
-            // props.setUser(res.data);
+            console.log(res);
+            localStorage.setItem('user-token',res.data.token);            
+            setSubmitting(false);
             window.$toastr("Success","Berhasil Masuk")            
             navigate('/')
-        })        
+            // return window.$axios.get("/me");           
+        })
+        // .then(res => {
+        //     setSubmitting(false)
+        //     // props.setUser(res.data);
+        //     window.$toastr("Success","Berhasil Masuk")            
+        //     navigate('/')
+        // })        
         .catch(err => {         
             setSubmitting(false)   
             console.log(err)
             window.$globalErrorToaster(window.$toastr,err)        
         })
+    }
+
+    if(localStorage.getItem("user-token")){
+       return <Navigate to="/profil"/>
     }
 
     return (
