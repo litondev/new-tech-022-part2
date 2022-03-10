@@ -1,0 +1,8 @@
+.container-small{
+    min-width: 500px;    
+}
+
+.input-focus-gone:focus{ 
+    /* border : 0px solid black; */
+    outline: 0px solid black;
+}

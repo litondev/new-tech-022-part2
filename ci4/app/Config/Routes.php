@@ -33,7 +33,7 @@ $routes->setAutoRoute(true);
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
 
-$routes->group("api",["filter" => "cors"],function ($routes) {
+$routes->group("api",function ($routes) {
     $routes->get("status",function(){
         $response = service('response');
         $response->setJSON(["message" => "Active"]);
