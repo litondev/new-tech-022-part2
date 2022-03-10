@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate ,Navigate,Link} from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { setUser } from '../../store/user.js'
+import { useDispatch } from 'react-redux'
 import * as Yup from 'yup';
 import "./index.css";
 
@@ -16,6 +18,7 @@ const SigninSchema = Yup.object()
     });
 
 const Signin = () => {
+    const stateDispatch = useDispatch();
     const navigate = useNavigate();
 
     const [form] = useState({
@@ -27,10 +30,11 @@ const Signin = () => {
         window.$axios.post("/signin",values)
         .then(res => {
             console.log(res);
+            stateDispatch(setUser(res.data.user))
             localStorage.setItem('user-token',res.data.token);            
             setSubmitting(false);
             window.$toastr("Success","Berhasil Masuk")            
-            navigate('/')
+            navigate('/profil')
             // return window.$axios.get("/me");           
         })
         // .then(res => {
